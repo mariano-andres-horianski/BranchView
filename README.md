@@ -77,6 +77,7 @@ La base de datos viene pre-poblada con los siguientes usuarios para probar todos
 
 | Usuario | Contraseña | Rol | Sucursal Asignada | Situación Operativa / Demostración |
 | :--- | :--- | :--- | :--- | :--- |
+| `tour` | `tour123` | **supervisor** | *Global (todas)* | **Supervisor Demo (Tour Guiado)**: Cuenta de demostración interactiva que abre automáticamente el tour guiado con spotlight y tipografía ampliada al iniciar sesión. |
 | `supervisor` | `admin123` | **supervisor** | *Global (todas)* | Vista de todas las sucursales, comparador, filtros, creación de sucursal y resolución global. |
 | `gerente_centro` | `gerente123` | **gerente** | *Av. Corrientes 1520 (CABA)* | **Saludable**: Margen 15%, stock óptimo, 4 empleados. |
 | `gerente_norte` | `gerente123` | **gerente** | *Av. Constitución 2450 (MdP)* | **Alertas Múltiples**: Margen 7.0% (Alerta Naranja Financiera), Café Molido agotado = 0 (Alerta Roja Stock), Azúcar bajo stock (Alerta Amarilla). |
@@ -88,9 +89,27 @@ La base de datos viene pre-poblada con los siguientes usuarios para probar todos
 
 ---
 
-## 5. Reglas de Negocio y Motor de Alertas
+## 5. Tour Interactivo Guiado para Supervisores
 
-### 5.1 Alertas de Stock
+Para facilitar la inducción y comprensión del sistema, se diseñó un **módulo de onboarding interactivo** (`OnboardingTour`) adaptado especialmente para usuarios con rol de supervisor.
+
+### Características del Recorrido:
+- **Bienvenida Automática**: Al ingresar con el usuario `tour`, se despliega un diálogo con tipografía grande y legible invitando a realizar el recorrido de 6 pasos. Cuenta con la opción *"No volver a preguntar al iniciar sesión"*.
+- **Spotlight con Máscara SVG de Recorte Transparente**: La pantalla completa se atenúa al 78% mediante una máscara SVG que crea una ventana de recorte 100% transparente sobre el componente enfocado. Esto garantiza que el elemento se aprecie con su brillo, nitidez y colores nativos.
+- **Marco Iluminado y Resplandeciente**: El componente activo se destaca con un borde púrpura pulsante (`ring-4 ring-purple-500/60 animate-pulse`), una insignia superior del paso activo y centrado automático en pantalla (`scrollIntoView`).
+- **Carteles Flotantes Accesibles**: Tarjetas explicativas con tipografía amplia (`text-lg` / `text-base`), flecha indicadora hacia el elemento y controles de navegación intuitivos.
+- **Navegación Total por Teclado y Salteo Inmediato**:
+  - `Flecha Derecha` ($\rightarrow$): Siguiente paso.
+  - `Flecha Izquierda` ($\leftarrow$): Paso anterior.
+  - `Escape`: Cancelar o saltear el tour en cualquier momento.
+  - Botón **"Saltar tour"** o cruz de cierre siempre disponibles.
+- **Reinicio Manual**: El botón con destellos **"Tour Guiado"** en la barra superior permite a cualquier supervisor reiniciar el tour cuando lo desee.
+
+---
+
+## 6. Reglas de Negocio y Motor de Alertas
+
+### 6.1 Alertas de Stock
 - **Normal** (`cantidad >= stock_seguridad`): No genera alerta. Si existía una alerta automática activa para este producto, **se resuelve automáticamente**.
 - **Stock Bajo / Amarilla** (`0 < cantidad < stock_seguridad`): Genera alerta amarilla indicando unidades disponibles vs stock de seguridad.
 - **Stock Agotado / Roja** (`cantidad == 0`): Genera alerta roja crítica con prioridad alta.
@@ -113,7 +132,7 @@ Se evalúa el cociente mensual: `ganancias_netas_mes / ventas_mes`.
 
 ---
 
-## 6. Verificación de Flujos de Usuario (Criterios de Éxito)
+## 7. Verificación de Flujos de Usuario (Criterios de Éxito)
 
 ### Flujo A: Supervisor
 1. Iniciar sesión con `supervisor` / `admin123`.
@@ -155,7 +174,7 @@ Se evalúa el cociente mensual: `ganancias_netas_mes / ventas_mes`.
 
 ---
 
-## 7. Endpoints de la API REST
+## 8. Endpoints de la API REST
 
 ### Autenticación
 - `POST /api/auth/login` — Autenticación y emisión de JWT.
@@ -190,7 +209,7 @@ Se evalúa el cociente mensual: `ganancias_netas_mes / ventas_mes`.
 
 ---
 
-## 8. Estructura del Proyecto
+## 9. Estructura del Proyecto
 
 ```text
 branchview/
@@ -218,7 +237,8 @@ branchview/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/       # Layouts, Sidebar, Modales, Badges, Toast, KPIs
-│   │   ├── context/          # AuthContext y manejo de sesión
+│   │   │   └── tour/         # OnboardingTour (Spotlight SVG, Popover, atajos)
+│   │   ├── context/          # AuthContext y TourContext
 │   │   ├── pages/            # Login, Supervisor, Detalle/Gerente, Comparador, Alertas
 │   │   ├── services/         # Cliente API con interceptores Axios
 │   │   ├── types/            # Tipos TypeScript
@@ -236,7 +256,7 @@ branchview/
 
 ---
 
-## 9. Pruebas Automatizadas
+## 10. Pruebas Automatizadas
 
 Para ejecutar la suite de pruebas unitarias de lógica de negocio en el backend:
 
