@@ -137,14 +137,31 @@ def seed_financial_history_for_branches(db, branches):
 
     db.commit()
 
+def ensure_tour_user(db):
+    """Crea o asegura la existencia del usuario supervisor 'tour'."""
+    tour_user = db.query(Usuario).filter(Usuario.username == "tour").first()
+    if not tour_user:
+        print("Creando usuario supervisor de prueba 'tour'...")
+        tour_user = Usuario(
+            username="tour",
+            nombre="Supervisor Demo (Tour)",
+            rol="supervisor",
+            password_hash=get_password_hash("tour123")
+        )
+        db.add(tour_user)
+        db.commit()
+        print("Usuario 'tour' creado exitosamente.")
+    return tour_user
+
 def seed(force_finance=False):
     print("Iniciando creación/verificación de tablas...")
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
     try:
+        ensure_tour_user(db)
         users_count = db.query(Usuario).count()
-        if users_count > 0:
+        if users_count > 1:
             if force_finance:
                 print("Actualizando historial financiero de 24 meses...")
                 branches = db.query(Sucursal).order_by(Sucursal.id.asc()).all()

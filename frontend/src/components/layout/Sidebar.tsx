@@ -64,6 +64,7 @@ export const Sidebar: React.FC = () => {
 
         <NavLink
           to="/alerts"
+          data-tour="alerts-link"
           className={({ isActive }) =>
             `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
               isActive

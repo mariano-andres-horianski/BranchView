@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Store, Lock, User, AlertCircle, ArrowRight, ShieldCheck, Briefcase } from 'lucide-react';
+import { Store, Lock, User, AlertCircle, ArrowRight, ShieldCheck, Briefcase, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { apiService } from '../services/api';
 
@@ -136,6 +136,18 @@ export const LoginPage: React.FC = () => {
               Credenciales de prueba rápida
             </span>
             <div className="grid grid-cols-1 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin('tour', 'tour123')}
+                className="flex items-center justify-between px-3 py-2 text-xs font-medium text-purple-900 bg-purple-50 hover:bg-purple-100 hover:text-purple-950 border border-purple-200 rounded-md transition-colors text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-600" />
+                  <span>Supervisor Demo (Tour Guiado)</span>
+                </div>
+                <span className="text-[10px] bg-purple-200/70 px-1.5 py-0.5 rounded text-purple-800 font-mono">tour / tour123</span>
+              </button>
+
               <button
                 type="button"
                 onClick={() => handleQuickLogin('supervisor', 'admin123')}

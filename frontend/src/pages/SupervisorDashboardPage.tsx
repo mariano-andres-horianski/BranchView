@@ -174,6 +174,7 @@ export const SupervisorDashboardPage: React.FC = () => {
         subtitle="Supervisión global, auditoría y análisis comparativo"
         actions={
           <button
+            data-tour="add-branch"
             onClick={handleOpenAddModal}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors"
           >
@@ -185,7 +186,7 @@ export const SupervisorDashboardPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 mt-8 space-y-6">
         {/* Search & Filters */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
+        <div data-tour="search-filters" className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-4">
           <div className="flex flex-col md:flex-row gap-3">
             <form onSubmit={handleSearchSubmit} className="flex-1 relative">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -228,7 +229,7 @@ export const SupervisorDashboardPage: React.FC = () => {
         </div>
 
         {/* Selection Bar / Actions */}
-        <div className="flex items-center justify-between bg-white px-5 py-3 rounded-lg border border-slate-200 shadow-xs">
+        <div data-tour="compare-mode" className="flex items-center justify-between bg-white px-5 py-3 rounded-lg border border-slate-200 shadow-xs">
           <div className="flex items-center gap-3">
             <button
               onClick={handleSelectAll}
@@ -275,11 +276,12 @@ export const SupervisorDashboardPage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {branches.map((branch) => {
+            {branches.map((branch, index) => {
               const isSelected = selectedBranchIds.includes(branch.id);
               return (
                 <div
                   key={branch.id}
+                  {...(index === 0 ? { 'data-tour': 'branch-card' } : {})}
                   className={`bg-white rounded-xl border transition-all relative flex flex-col ${
                     isSelected
                       ? 'border-blue-500 ring-2 ring-blue-500/20 shadow-md'
