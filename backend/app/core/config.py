@@ -1,5 +1,6 @@
 import os
 from typing import List
+from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -31,6 +32,13 @@ class Settings(BaseSettings):
     class Config:
         case_sensitive = True
         env_file = ".env"
+
+    @field_validator("DATABASE_URL", mode="after")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        if v.startswith("postgres://"):
+            return v.replace("postgres://", "postgresql://", 1)
+        return v
 
     def __init__(self, **values):
         super().__init__(**values)

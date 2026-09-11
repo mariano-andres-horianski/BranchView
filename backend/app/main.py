@@ -1,19 +1,25 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
+from sqlalchemy import text
 from app.core.config import settings
 from app.api.routers import auth, branches, alerts, employees, stock, finances, users
-from app.db.session import engine
+from app.db.session import engine, SessionLocal
 from app.db.base import Base
 import app.models  # Ensure all models are registered
 
 # Create tables if not using migrations directly (or as backup)
-Base.metadata.create_all(bind=engine)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    # If database is not ready or alembic handles it, avoid crashing on import
+    pass
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url=f"{settings.API_V1_STR}/docs",
-    redoc_url=f"{settings.API_V1_STR}/redoc",
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
 
 # CORS
@@ -34,7 +40,33 @@ app.include_router(stock.router, prefix=settings.API_V1_STR)
 app.include_router(finances.router, prefix=settings.API_V1_STR)
 app.include_router(users.router, prefix=settings.API_V1_STR)
 
+@app.get("/")
+@app.get(f"{settings.API_V1_STR}")
+def root():
+    return {"message": "BranchView API is running"}
+
 @app.get("/health")
 @app.get(f"{settings.API_V1_STR}/health")
-def health_check():
-    return {"status": "ok", "project": settings.PROJECT_NAME}
+def health_check(response: Response):
+    try:
+        with SessionLocal() as session:
+            session.execute(text("SELECT 1"))
+        return {
+            "status": "ok",
+            "database": "ok"
+        }
+    except Exception as e:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {
+            "status": "error",
+            "database": "error",
+            "detail": f"Database connection failed: {str(e)}"
+        }
+
+@app.get(f"{settings.API_V1_STR}/docs", include_in_schema=False)
+def redirect_api_docs():
+    return RedirectResponse(url="/docs")
+
+@app.get(f"{settings.API_V1_STR}/openapi.json", include_in_schema=False)
+def redirect_api_openapi():
+    return RedirectResponse(url="/openapi.json")
