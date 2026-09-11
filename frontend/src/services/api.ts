@@ -13,7 +13,24 @@ import {
   BranchFinances,
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const rawUrl = (import.meta.env.VITE_API_URL || '').trim();
+
+function getApiBaseUrl(): string {
+  if (!rawUrl) {
+    // Por defecto usa '/api' (proxy en desarrollo Vite y Nginx en Docker)
+    return '/api';
+  }
+  // Elimina barras finales accidentales
+  const cleanUrl = rawUrl.replace(/\/+$/, '');
+  // Si ya termina en /api, se usa directamente
+  if (cleanUrl.endsWith('/api')) {
+    return cleanUrl;
+  }
+  // Si se proporcionó la URL base sin /api (ej: https://branchview.onrender.com), se concatena /api
+  return `${cleanUrl}/api`;
+}
+
+const API_BASE = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE,
