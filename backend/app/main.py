@@ -40,13 +40,15 @@ app.include_router(stock.router, prefix=settings.API_V1_STR)
 app.include_router(finances.router, prefix=settings.API_V1_STR)
 app.include_router(users.router, prefix=settings.API_V1_STR)
 
-@app.get("/")
-@app.get(f"{settings.API_V1_STR}")
+@app.get("/", tags=["General"], summary="Root status")
+@app.get(f"{settings.API_V1_STR}", tags=["General"], include_in_schema=False)
 def root():
     return {"message": "BranchView API is running"}
 
-@app.get("/health")
-@app.get(f"{settings.API_V1_STR}/health")
+@app.get("/health", tags=["Health"], summary="Health check (API & Database)")
+@app.get("/health/", tags=["Health"], include_in_schema=False)
+@app.get(f"{settings.API_V1_STR}/health", tags=["Health"], include_in_schema=False)
+@app.get(f"{settings.API_V1_STR}/health/", tags=["Health"], include_in_schema=False)
 def health_check(response: Response):
     try:
         with SessionLocal() as session:
