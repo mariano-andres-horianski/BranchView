@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Union
 from pydantic import field_validator
 from pydantic_settings import BaseSettings
 
@@ -21,13 +21,31 @@ class Settings(BaseSettings):
         f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
     )
 
-    CORS_ORIGINS: List[str] = [
+    CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:5173",
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
         "*"
     ]
+
+    @field_validator("CORS_ORIGINS", mode="after")
+    @classmethod
+    def assemble_cors_origins(cls, v: Union[List[str], str]) -> List[str]:
+        if isinstance(v, str):
+            stripped = v.strip()
+            if stripped.startswith("[") and stripped.endswith("]"):
+                import json
+                try:
+                    parsed = json.loads(stripped)
+                    if isinstance(parsed, list):
+                        return [x.rstrip("/") if x != "/" else x for x in parsed]
+                except Exception:
+                    pass
+            return [x.strip().rstrip("/") if x.strip() != "/" else x.strip() for x in v.split(",") if x.strip()]
+        elif isinstance(v, list):
+            return [x.rstrip("/") if x != "/" else x for x in v]
+        return v
 
     class Config:
         case_sensitive = True
