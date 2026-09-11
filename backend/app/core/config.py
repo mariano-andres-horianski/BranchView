@@ -32,4 +32,9 @@ class Settings(BaseSettings):
         case_sensitive = True
         env_file = ".env"
 
+    def __init__(self, **values):
+        super().__init__(**values)
+        if self.DATABASE_URL.startswith("postgres://"):
+            self.DATABASE_URL = self.DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 settings = Settings()
